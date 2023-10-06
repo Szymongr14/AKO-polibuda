@@ -13,9 +13,11 @@ public _main
 
 .code
 _main:
+    
 
+;as a result of MessageBox function in eax is stored value of choosen button
     loop_message_box:
-        push 4
+        push 4 ;YES or NO button
         push OFFSET tytul
         push OFFSET tekst
         push 0
