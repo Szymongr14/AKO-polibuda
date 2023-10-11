@@ -1,53 +1,91 @@
-; Przykład wywoływania funkcji MessageBoxA i MessageBoxW
-;dla znaków specjalnych trzeba zastapic kodami UTF-16 i Win1250
+; wczytywanie i wyświetlanie tekstu wielkimi literami
+; (inne znaki się nie zmieniają)
 .686
 .model flat
 extern _ExitProcess@4 : PROC
-extern _MessageBoxA@16 : PROC
-extern _MessageBoxW@16 : PROC
+extern __write : PROC ; (dwa znaki podkreślenia)
+extern __read : PROC ; (dwa znaki podkreślenia)
 public _main
-
 .data
-	tytul_Unicode dw 'T','e','k','s','t',' ','w',' '
-	dw 'f','o','r','m','a','c','i','e',' '
-	dw 'U','T','F','-','1','6', 0
-	
-	tekst_Unicode dw 'K','a',17Ch,'d','y',' ','z','n','a','k',' '
-	dw 'z','a','j','m','u','j','e',' '
-	dw '1','6',' ','b','i','t',0F3h,'w', 0
-	
-	tytul_Win1250 db 'Tekst w standardzie Windows 1250', 0
-	
-	tekst_Win1250 db 'Ka',0BFh,'dy znak zajmuje 8 bit',0F3h,'w', 0
+	tekst_pocz db 10, 'Prosz',0A9h,' napisa',86h,' jaki',98h,' tekst '
+	db 'i nacisn',0A5h,86h,' Enter: ', 0
+	koniec_t db ?
 
-	tytul_Unicode_zadanie dw 'Z','n','a','k','i',' ', 'w',' ','u','n','i','c','o','d','e',0
-
-	tekst_Unicode_zadanie dw 'T','o',' ','j','e','s','t',' '
-	dw 0D83Dh,0DEEAh,' ','s','a','m','o','l','o','t',' ','i',' ','u','f','o',' '
-	dw 0D83Dh, 0DEF8h
+	magazyn db 80 dup (?)
+	liczba_znakow dd ?
 
 .code
 	_main:
-	push 0 ; stała MB_OK
-	push OFFSET tytul_Win1250 ; adres obszaru zawierajšcego tytuł
-	push OFFSET tekst_Win1250; adres obszaru zawierajšcego tekst
-	push 0 ; NULL
-	call _MessageBoxA@16
-	
+		; wyświetlenie tekstu informacyjnego
+		mov ecx,(OFFSET koniec_t) - (OFFSET tekst_pocz);to samo co text_len: equ $-text
+		push ecx ;dlugosc tekstu
+		push OFFSET tekst_pocz ; adres tekstu
+		push 1 ; nr urządzenia (tu: ekran - nr 1)
+		call __write ; wyświetlenie tekstu początkowego
+		add esp, 12 ; usuniecie parametrów ze stosu
+		
+		
+		; czytanie wiersza z klawiatury
+		push 80 ; maksymalna liczba znaków
+		push OFFSET magazyn
+		push 0 ; nr urządzenia (tu: klawiatura - nr 0)
+		call __read ; czytanie znaków z klawiatury
+		add esp, 12 ; usuniecie parametrów ze stosu
+		; kody ASCII napisanego tekstu zostały wprowadzone do obszaru 'magazyn'
+		; funkcja read wpisuje do rejestru EAX liczbę wprowadzonych znaków
+		mov liczba_znakow, eax
+		; rejestr ECX pełni rolę licznika obiegów pętli
+		mov ecx, eax
+		mov ebx, 0 ; indeks początkowy
+		
+		ptl:
+			mov dl, magazyn[ebx] ; pobranie kolejnego znaku
+			
+			check_a:
+				cmp dl, 0A5h
+				jne check_c
+				sub dl, 1
+				mov magazyn[ebx], dl
+				jmp dalej
 
-	push 0 ; stala MB_OK
-	push OFFSET tytul_Unicode
-	push OFFSET tekst_Unicode; adres obszaru zawierajšcego tekst
-	push 0 ; NULL
-	call _MessageBoxW@16
+			check_c:
+				cmp dl, 86h
+				jne check_e
+				add dl, 9
+				mov magazyn[ebx], dl
+				jmp dalej
 
-	push 0 ; stala MB_OK
-	push OFFSET tytul_Unicode_zadanie
-	push OFFSET tekst_Unicode_zadanie; adres obszaru zawierajšcego tekst
-	push 0 ; NULL
-	call _MessageBoxW@16
-	
-	
-	push 0 ; kod powrotu programu
-	call _ExitProcess@4
+			check_e:
+				cmp dl, 0A9h
+				jne check_not_special_character
+				sub dl, 1
+				mov magazyn[ebx], dl
+				jmp dalej
+
+			;other polish special characters, they don't have pattern like in ASCII encoding
+
+			check_not_special_character:
+				cmp dl, 'a'
+				jb dalej ; skok, gdy znak nie wymaga zamiany
+				cmp dl, 'z'
+				ja dalej ; skok, gdy znak nie wymaga zamiany
+				sub dl, 20H ; zamiana na wielkie litery
+				mov magazyn[ebx], dl ; odesłanie znaku do pamięci
+
+			dalej: 
+			inc ebx ; inkrementacja indeksu
+			dec ecx
+		jnz ptl
+		
+		
+		; wyświetlenie przekształconego tekstu
+		push liczba_znakow
+		push OFFSET magazyn
+		push 1
+		call __write ; wyświetlenie przekształconego tekstu
+		add esp, 12 ; usuniecie parametrów ze stosu
+
+
+		push 0
+		call _ExitProcess@4 ; zakończenie programu
 END

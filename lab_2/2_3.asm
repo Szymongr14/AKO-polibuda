@@ -1,5 +1,5 @@
-; Przyk≥ad wywo≥ywania funkcji MessageBoxA i MessageBoxW
-;dla znakÛw specjalnych trzeba zastapic kodami UTF-16 i Win1250
+; Przyk≈Çad wywo≈Çywania funkcji MessageBoxA i MessageBoxW
+;dla znak√≥w specjalnych trzeba zastapic kodami UTF-16 i Win1250
 .686
 .model flat
 extern _ExitProcess@4 : PROC
@@ -12,15 +12,15 @@ public _main
 	dw 'f','o','r','m','a','c','i','e',' '
 	dw 'U','T','F','-','1','6', 0
 	
-	tekst_Unicode dw 'K','a','z','d','y',' ','z','n','a','k',' '
+	tekst_Unicode dw 'K','a',17Ch,'d','y',' ','z','n','a','k',' '
 	dw 'z','a','j','m','u','j','e',' '
-	dw '1','6',' ','b','i','t','o','w', 0
+	dw '1','6',' ','b','i','t',0F3h,'w', 0
 	
 	tytul_Win1250 db 'Tekst w standardzie Windows 1250', 0
 	
 	tekst_Win1250 db 'Ka',0BFh,'dy znak zajmuje 8 bit',0F3h,'w', 0
 
-	tytul_Unicode_zadanie dw 'Z','n','a','k','i',0
+	tytul_Unicode_zadanie dw 'Z','n','a','k','i',' ', 'w',' ','u','n','i','c','o','d','e',0
 
 	tekst_Unicode_zadanie dw 'T','o',' ','j','e','s','t',' '
 	dw 0D83Dh,0DEEAh,' ','s','a','m','o','l','o','t',' ','i',' ','u','f','o',' '
@@ -28,22 +28,22 @@ public _main
 
 .code
 	_main:
-	push 0 ; sta≥a MB_OK
-	push OFFSET tytul_Win1250 ; adres obszaru zawierajπcego tytu≥
-	push OFFSET tekst_Win1250; adres obszaru zawierajπcego tekst
+	push 0 ; sta≈Ça MB_OK
+	push OFFSET tytul_Win1250 ; adres obszaru zawieraj≈°cego tytu≈Ç
+	push OFFSET tekst_Win1250; adres obszaru zawieraj≈°cego tekst
 	push 0 ; NULL
 	call _MessageBoxA@16
 	
 
 	push 0 ; stala MB_OK
 	push OFFSET tytul_Unicode
-	push OFFSET tekst_Unicode; adres obszaru zawierajπcego tekst
+	push OFFSET tekst_Unicode; adres obszaru zawieraj≈°cego tekst
 	push 0 ; NULL
 	call _MessageBoxW@16
 
 	push 0 ; stala MB_OK
 	push OFFSET tytul_Unicode_zadanie
-	push OFFSET tekst_Unicode_zadanie; adres obszaru zawierajπcego tekst
+	push OFFSET tekst_Unicode_zadanie; adres obszaru zawieraj≈°cego tekst
 	push 0 ; NULL
 	call _MessageBoxW@16
 	

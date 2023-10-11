@@ -1,5 +1,5 @@
-;default encoding in VS2019 console is LATIN2
-;Hexadecimal numbers must always start with a decimal digit (0ñ9)
+;default encoding in VS2019 console is CP 852
+;Hexadecimal numbers must always start with a decimal digit (0‚Äì9)
 
 .686
 .model flat
@@ -18,15 +18,15 @@ public _main
 
 .code
 _main:
-    mov ecx, tekst_len ; liczba znakÛw wyúwietlanego tekstu
+    mov ecx, tekst_len ; liczba znak√≥w wy≈õwietlanego tekstu
         ; zapisanie adresu zmiennej "tekst" w rejestrze eax
-    push ecx ; liczba znakÛw wyúwietlanego tekstu
-    push dword PTR OFFSET tekst ; po≥oøenie obszaru ze znakami
-    push dword PTR 1 ; uchwyt urzπdzenia wyjúciowego
-    call __write ; wyúwietlenie znakÛw
-    add esp, 12 ; usuniÍcie parametrÛw ze stosu
+    push ecx ; liczba znak√≥w wy≈õwietlanego tekstu
+    push dword PTR OFFSET tekst ; po≈Ço≈ºenie obszaru ze znakami
+    push dword PTR 1 ; uchwyt urzƒÖdzenia wyj≈õciowego
+    call __write ; wy≈õwietlenie znak√≥w
+    add esp, 12 ; usuniƒôcie parametr√≥w ze stosu
     
-    ; zakoÒczenie wykonywania programu
+    ; zako≈Ñczenie wykonywania programu
     push dword PTR 0 ; kod powrotu programu
     call _ExitProcess@4
 END
