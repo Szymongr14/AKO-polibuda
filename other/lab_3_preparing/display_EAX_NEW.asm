@@ -25,7 +25,7 @@ _display_eax PROC
 		mov edx, 0 ; zerowanie starszej czêœci dzielnej
 		div ebx ; dzielenie przez 10, reszta w EDX, iloraz w EAX
 		add dl, 30H ; zamiana reszty z dzielenia na kod ASCII (30h = 0, 31h = 1, ...)
-		mov znaki [edi], dl; zapisanie cyfry w kodzie ASCII
+		mov buffer_out [edi], dl; zapisanie cyfry w kodzie ASCII
 		dec edi ;zmniejszenie indeksu buffer_out
 		cmp eax, 0 ; sprawdzenie czy iloraz = 0, czyli liczba, któr¹ aktualnie dzielisz
 		jne divide ;jesli iloraz nie jest zerem, dziel dalej
