@@ -9,8 +9,8 @@ extern __read : PROC
 public _main
 
 .data
-buffer_in db 9 dup (?)
-max_buffer_length equ 10
+buffer_in db 11 dup (?) ;maksymalna wartosc to 2^32 czyli 10cyfr + 1 znak nowej linii
+max_buffer_length equ 12 ;11+1 zeby w przypadku 10 znakow przeczytalo entera
 amount_of_entered_digits dd ?
 
 number_system dd 10
@@ -108,8 +108,7 @@ _main PROC
 	call __read
 	add esp, 12
 	mov amount_of_entered_digits, eax
-
-
+	
 	call _load_number_to_eax
 	push eax ;load eax on stack, because __write changes it
 

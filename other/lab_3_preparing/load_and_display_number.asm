@@ -9,16 +9,16 @@ extern __read : PROC
 public _main
 
 .data
-buffer_in db 9 dup (?)
-max_buffer_length equ 10
+buffer_in db 11 dup (?) ;maksymalna wartosc to 2^32 czyli 10cyfr + 1 znak nowej linii
+max_buffer_length equ 12 ;11+1 zeby w przypadku 10 znakow przeczytalo entera
 amount_of_entered_digits dd ?
 
-buffer_out db 11 dup (?)
-buffer_out_length equ 10
+buffer_out db 11 dup (?);maksymalna wartosc to 2^32 czyli 10cyfr + 1 znak nowej linii
+buffer_out_length equ 11
 
-number_system dd 10
+number_system dd 10 ;system liczbowy
 
-text db 'Value of EAX:', 0
+text db 'Value of EAX: ', 0
 text_len equ $-text
 
 entry_text db 'Type value you want load to EAX: ', 0
@@ -30,6 +30,7 @@ _display_eax PROC
 	;prolog
 	push ebp
 	mov ebp,esp 
+	pusha
 
 	mov ebx, 10; ustawienie dzielnika na 10
 	mov buffer_out[buffer_out_length-1], 0Ah ; wstawienie znaku nowej lini na ostatni indkes buffor_out
@@ -44,13 +45,16 @@ _display_eax PROC
 		cmp eax, 0 ; sprawdzenie czy iloraz = 0, czyli liczba, któr¹ aktualnie dzielisz
 		jne divide ;jesli iloraz nie jest zerem, dziel dalej
 
+	cmp edi, -1
+	je print ;jeslli buffor jest wypelniony do konca przejdz do wypisywania liczby
 	; wype³nienie pozosta³ych bajtów '0'
 	fill_next_values:
+		cmp edi, -1
 		mov buffer_out[edi], 0
 		dec edi
-		cmp edi, -1
 		jne fill_next_values
 
+	print:
 	;wyswietlenie liczby
 	push buffer_out_length
 	push OFFSET buffer_out
@@ -58,6 +62,8 @@ _display_eax PROC
 	call __write
 	add esp, 12
 	
+
+	popa	
 	;epilog
 	pop ebp
 	ret
@@ -68,6 +74,9 @@ _load_number_to_eax PROC
 	;prolog
 	push ebp
 	mov ebp, esp
+	push esi
+	push edi
+	push ebx
 
 	;zerowanie indkesow
 	mov eax, 0 
@@ -91,6 +100,10 @@ _load_number_to_eax PROC
 		jmp load_next_digit
 	was_enter:
 
+
+		pop ebx
+		pop edi
+		pop esi
 		;epilog
 		pop ebp
 		ret
