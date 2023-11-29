@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #define SIZE 60
 
-int sum(int tab[], int size);
+int sum_function(int tab[], int size);
 
 int main() {
 
@@ -14,7 +14,7 @@ int main() {
 
 	for (int i = 0; i < SIZE; i++) {
 		if (array[i] == ' ') numbers++;
-		if (array[i] == '\n') break;
+		if (array[i] == '\0') break;
 	}
 
 	int* int_array = calloc(numbers, sizeof(int));
@@ -22,18 +22,28 @@ int main() {
 	int index_array = 0;
 	int index_number = 0;
 	for (int i = 0; i < SIZE; i++) {
-		if (array[i] == '\n') break;
+		if (array[i] == '\0') {
+			int_array[index_array++] = atoi(number);
+			index_number = 0;
+			memset(number, 0, sizeof number);
+			break;
+		}
 		if (array[i] == ' ') {
 			int_array[index_array++] = atoi(number);
 			index_number = 0;
+			memset(number, 0, sizeof number);
 			continue;
 		}
-		number[i] = array[i];
+		number[index_number++] = array[i];
 	}
 
-	int sum1 = sum(int_array, numbers);
+	int sum1 = sum_function(int_array, numbers);
 
-
+	printf("Sum of ");
+	for (int i = 0; i < numbers; i++) {
+		printf("%d, ", int_array[i]);
+	}
+	printf("is: %d", sum1);
 
 	return 0;
 }
